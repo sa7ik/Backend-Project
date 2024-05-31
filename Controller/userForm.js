@@ -198,6 +198,37 @@ const addToWishList=async(req,res)=>{
     })
 }
 
+// const order=async(req,res)=>{
+//     try{
+//         const {token}=req.cookies
+//         const valid=jwt.verify(token,process.env.jwt_secret);
+//         const userId=valid.id;
+//         const cartData=await cartSchema.findOne({userId:userId});
+
+//         if(!cartData ||cartData.cart.length===0){
+//             return res.status(200).send('No product found in your cart')
+//         }
+
+//         const line_items=[];
+//         for (const cartItem of cartData.cart){
+//             const product = await productSchema.findById(cartItem.productId);
+//             if (!product){
+//                 res.status(404).send(`product with ID ${cartItem.productId} not found`)
+//             }
+//             line_items.push({
+//                 price_data:{
+//                     currency:'inr',
+//                     product_Data:{
+//                         name:product.name,
+//                     },
+//                     unit_amount=Math.round(product.price*100),
+//                 },
+//                 quantity:cartItem.quantity,
+//             })
+//         }
+//     }
+// }
+
 module.exports = {
     userRegistration,
     userLogin,
