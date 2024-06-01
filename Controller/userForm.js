@@ -50,14 +50,14 @@ const hashpassword=await bcrypt.hash(String(password),10)
     const user = await UserSchema.create({
         name,
         email,
-        password,
+        password: hashpassword,
     })
 
-    //  const token = jwt.sign({ id: user._id },secret, {
-    //     expiresIn: "2h",
-    //   });
+     const token = jwt.sign({ id: user._id },process.env.jwt_secret, {
+        expiresIn: "2h",
+      });
     // user.token = token;
-    //   res.cookie("token", token);
+      res.cookie("token", token);
 
     user.password = undefined;
     res.status(200).json({

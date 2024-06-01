@@ -1,6 +1,5 @@
 const jwt=require('jsonwebtoken')
 const {tryCatch}=require('../Utils/tryCatch')
-const userSchema=require('../Model/UserSchema')
 const UserSchema = require('../Model/UserSchema')
 
 const userAuth=tryCatch(async(req,res,next)=>{
