@@ -167,6 +167,72 @@ const addToCart=async (req,res)=>{
     })
 }
 
+//view Cart
+
+const getCart = async (req,res)=>{
+    const {token}=req.cookies;
+    const valid = await jwt.verify(token,process.env.jwt_secret);
+
+    const userId = valid.id;
+
+    const user = await cartSchema.findOne({userId:userId})
+    .populate('cart.productId');
+    
+    if(!user||user.cart.length===0){
+        res.status(404).json({
+            success:false,
+            message:'cart is empty',
+        })
+    }
+    res.status(200).json(user);
+}
+
+//decrease product quantity
+
+const decreaseQuantity=async(req,res)=>{
+    const {token}=req.cookies
+    const valid=jwt.verify(token,process.env.jwt_secret);
+    const {productId}=req.params;
+    const userId=valid.id;
+
+    const user=await cartSchema.findOne({userId:userId});
+
+    if(!user){
+        res.status(404).send('Product not found in your cart')
+    }
+    const itemIndex=user.cart.findIndex((item)=>item.productId==productId);
+
+    if (itemIndex !== -1){
+        user.cart[itemIndex].quantity -= 1
+    }
+    await user.save();
+    res.status(200).send('Product quantity decreased')
+}
+
+//delete from cart
+
+const removeProduct = async(req,res)=>{
+    const {token} = req.cookies;
+    const valid = jwt.verify(token,process.env.jwt_secret)
+    const {productId} = req.params;
+
+    const userId=valid.id
+
+    const user = await cartSchema.findOne({userId:userId})
+
+    if(!user){
+        res.status(404).send('No product found in your cart')
+    }
+    const itemIndex = user.cart.findIndex((item) => item.productId==productId)
+
+    if (itemIndex !== -1){
+        user.cart.splice(itemIndex, 1)
+
+        await user.save();
+        res.status(200).send('product removed from cart')
+    }
+}
+
 //Add product to wishList
 
 const addToWishList=async(req,res)=>{
@@ -196,6 +262,45 @@ const addToWishList=async(req,res)=>{
         success:true,
         message:"product added to wishlist"
     })
+}
+
+//read wishList
+
+const viewWishList=async(req,res)=>{
+    const {token}=req.cookies;
+    const {userId}=req.body;
+
+    const user = await wishListSchema.findOne({userId:userId})
+    .populate('wishList.productId');
+
+    if (!user||user.wishList.length===0){
+        res.status(400).send('No product found in your WishList')
+    }
+}
+
+//remove WishList
+
+const removeWishList = async(req,res)=>{
+    const {token} = req.cookies;
+    const {userId,productId}=req.body;
+
+    const wishList=await wishListSchema.findOne({userId});
+    if (!wishList){
+        res.status(404).json({
+            success:false,
+            message:'No item found in your wishList'
+        })
+    }
+    const itemIndex = wishList.wishlist.findIndex(
+        (item)=>item.productId==productId
+    );
+    if (itemIndex === -1){
+
+        res.send('Item not found in your WishList')
+    }
+    wishList.wishlist.splice(itemIndex, 1);
+    await wishList.save();
+    res.send("item Removed")
 }
 
 // const order=async(req,res)=>{
@@ -235,5 +340,10 @@ module.exports = {
     viewProduct,
     productById,
     addToCart,
-    addToWishList
+    addToWishList,
+    removeProduct,
+    getCart,
+    removeWishList,
+    viewWishList,
+    decreaseQuantity
 }
