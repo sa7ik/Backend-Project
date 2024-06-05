@@ -1,21 +1,19 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose');
 
-const wishlist=mongoose.Schema({
-    userId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"UserSchema",
-        required:true,
-        unique:true,
+const wishListSchema = mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserSchema",
+        required: true,
+        unique: true,
     },
-    wishlist:[
-        {
-            productId:{
-                type:mongoose.Schema.Types.ObjectId,
-                ref:'product',
-                required:true,
-            },
+    wishlist: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product', // Reference the product model correctly
+            required: true,
         },
-    ],
+    }],
 });
 
-module.exports=mongoose.model("wishListSchema",wishlist)
+module.exports = mongoose.model("wishListSchema", wishListSchema);

@@ -5,7 +5,6 @@ const wishListSchema=require('../Model/wishListSchema')
 const joi = require('joi')
 const bcrypt = require('bcryptjs')
 const jwt=require('jsonwebtoken')
-const cookieParser=require('cookie-parser')
 
 //joi validation
 
@@ -138,12 +137,14 @@ const productById=async(req,res)=>{
 // add to cart
 
 const addToCart=async (req,res)=>{
-    const {token}=req.cookies
+    
+   const {token}=req.cookies
+//    console.log(token);
     const {productId}=req.body
 
-    const valid=await jwt.verify(token,process.env.jwt_secret)
-    const userId=valid.id
-    let user=await cartSchema.findOne ({userId})
+    const userId=req.user
+    // console.log(userId);
+    let user=await cartSchema.findOne({userId})
 
     if(!user){
         user=new cartSchema({
@@ -154,6 +155,7 @@ const addToCart=async (req,res)=>{
         const itemIndex=user.cart.findIndex(
             (item)=>item.productId==productId
         )
+        console.log(itemIndex);
         if(itemIndex!== -1){
          user.cart[itemIndex].quantity +=1;   
         }else{
@@ -238,8 +240,7 @@ const removeProduct = async(req,res)=>{
 const addToWishList=async(req,res)=>{
     const {token}=req.cookies;
     const {productId,userId}=req.body;
-    let addwishList=await wishListSchema.findOne({userId});
-
+    let addwishList=await wishListSchema.findOne({userId}).populate("wishlist.productId")
     if(!addwishList){
         addwishList=new wishListSchema({
             userId,
@@ -248,14 +249,16 @@ const addToWishList=async(req,res)=>{
         await addwishList.save();
         res.send("product added to your wishList")
     }
-    const itemIndex=addwishList.wishList.findIndex(
+    const itemIndex=addwishList.wishlist.findIndex(
         (item)=>item.productId==productId
     );
+    console.log(itemIndex);
     if(itemIndex === -1){
-        addwishList.wishList.push({productId});
+        addwishList.wishlist.push({productId});
         await addwishList.save();
         res.send("product added to your wishList")
     }
+    console.log(itemIndex);
     res.send("product already exist in wishList");
 
     res.status(200).json({
@@ -265,18 +268,23 @@ const addToWishList=async(req,res)=>{
 }
 
 //read wishList
+const viewWishList = async (req, res) => {
+    const { userId } = req.body;
 
-const viewWishList=async(req,res)=>{
-    const {token}=req.cookies;
-    const {userId}=req.body;
-
-    const user = await wishListSchema.findOne({userId:userId})
-    .populate('wishList.productId');
-
-    if (!user||user.wishList.length===0){
-        res.status(400).send('No product found in your WishList')
+    try {
+        const user = await wishListSchema.findOne({ userId: userId })
+            .populate('wishlist.productId');
+            if (!user || user.wishlist.length === 0) {
+                return res.status(400).send('No products found in your WishList');
+            }
+            
+        res.status(200).json(user);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Internal Server Error');
     }
 }
+
 
 //remove WishList
 
@@ -285,6 +293,7 @@ const removeWishList = async(req,res)=>{
     const {userId,productId}=req.body;
 
     const wishList=await wishListSchema.findOne({userId});
+    // console.log(wishList);
     if (!wishList){
         res.status(404).json({
             success:false,
@@ -294,6 +303,7 @@ const removeWishList = async(req,res)=>{
     const itemIndex = wishList.wishlist.findIndex(
         (item)=>item.productId==productId
     );
+    console.log(itemIndex);
     if (itemIndex === -1){
 
         res.send('Item not found in your WishList')
