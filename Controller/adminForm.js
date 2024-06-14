@@ -204,10 +204,11 @@ const orders = async (req,res)=>{
 
 const ordersById=async (req,res)=>{
     const {token}=req.cookies
-    const {id}=req.params
+    const {userId}=req.params
 
     const products=await OrderSchema.findOne({userId:userId}).populate("products.productId")
-
+    
+    console.log(products);
     if (products.length===0){
         res.status(404).json({
             success:false,
@@ -215,4 +216,15 @@ const ordersById=async (req,res)=>{
         })
     }
     res.status(200).json(products)
+}
+module.exports={
+    allUsers,
+    userById,
+    viewProduct,
+    viewProductById,
+    getCart,
+    deleteProduct,
+    orders,
+    ordersById,
+
 }

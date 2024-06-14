@@ -73,7 +73,7 @@ const getAdmin=async(req,res)=>{
         res.cookie("token",token,{
             httpOnly:true,
             secure:true,
-            sameSite:None,
+            // sameSite:None,
         })
         res.cookie("refreshToken",refreshToken);
         return res.status(200).json({
