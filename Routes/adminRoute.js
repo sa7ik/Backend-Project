@@ -15,5 +15,9 @@ adminRoutes.delete("/admin/delete/:id",adminAuth,tryCatch(adminController.delete
 adminRoutes.get("/admin/cart/:id",adminAuth,tryCatch(adminController.getCart))
 adminRoutes.get("/admin/orders",adminAuth,tryCatch(adminController.orders))
 adminRoutes.get("/admin/ordersid/:userId",adminAuth,tryCatch(adminController.ordersById))
+adminRoutes.get("/admin/revenue",adminAuth,tryCatch(adminController.totalRevenue))
+adminRoutes.get("/admin/totalpurchase",adminAuth,tryCatch(adminController.totalPurchase))
+
+adminRoutes.all("/admin/refresh-token",tryCatch(Controller.generateToken))
 
 module.exports=adminRoutes

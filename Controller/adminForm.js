@@ -206,7 +206,7 @@ const ordersById=async (req,res)=>{
     const {token}=req.cookies
     const {userId}=req.params
 
-    const products=await OrderSchema.findOne({userId:userId}).populate("products.productId")
+    const products=await OrderSchema.find({userId:userId}).populate("products.productId")
     
     console.log(products);
     if (products.length===0){
@@ -217,6 +217,35 @@ const ordersById=async (req,res)=>{
     }
     res.status(200).json(products)
 }
+
+// total product purchased
+
+const totalPurchase=async (req,res)=>{
+    const {token} = req.cookies
+    const totalOrder = await OrderSchema.aggregate([
+        {$group: {_id:null,totalPurchase: { $sum:"$totalItems"}}},
+    ])
+    if (totalOrder.length>0){
+        res.status(200).json(totalOrder[0])
+    }
+    res.status(200).send("product not purchased")
+}
+
+// total Revenue generated
+
+const totalRevenue=async (req,res)=>{
+    const {token}=req.cookies
+    const revenue=await OrderSchema.aggregate([
+        { $group: {_id:null,totalRevenue: { $sum: "$totalPrice"}}},
+    ]);
+    if (revenue.length>0){
+        res.status(200).json(revenue[0])
+    }
+    else{
+        res.status(404).send("No revenue records")
+    }
+}
+
 module.exports={
     allUsers,
     userById,
@@ -226,5 +255,6 @@ module.exports={
     deleteProduct,
     orders,
     ordersById,
-
+    totalPurchase,
+    totalRevenue,
 }
