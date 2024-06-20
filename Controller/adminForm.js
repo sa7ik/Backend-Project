@@ -1,5 +1,6 @@
 const productSchema=require("../Model/product")
 const joi=require("joi")
+const cloudinary=require("cloudinary")
 const UserSchema=require("../Model/UserSchema")
 const cartSchema=require("../Model/CartSchema")
 const OrderSchema=require("../Model/OrderSchema")
