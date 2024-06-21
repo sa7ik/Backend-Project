@@ -15,5 +15,7 @@ userRoutes.get('/user/viewCart',userAuth,tryCatch(controller.getCart))
 userRoutes.delete('/user/removewishlist',userAuth,tryCatch(controller.removeWishList))
 userRoutes.get('/user/getWishList',userAuth,tryCatch(controller.viewWishList))
 userRoutes.put('/user/decrease/:productId',userAuth,tryCatch(controller.decreaseQuantity))
+userRoutes.post('/user/success',userAuth,tryCatch(controller.orderSuccess))
+userRoutes.get('/user/orderData/:userId',userAuth,tryCatch(controller.orderRecords))
 
 module.exports = userRoutes

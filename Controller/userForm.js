@@ -5,6 +5,7 @@ const wishListSchema=require('../Model/wishListSchema')
 const joi = require('joi')
 const bcrypt = require('bcryptjs')
 const jwt=require('jsonwebtoken')
+const OrderSchema = require("../Model/OrderSchema")
 
 //joi validation
 
@@ -344,6 +345,71 @@ const removeWishList = async(req,res)=>{
 //     }
 // }
 
+//Buy Cart items
+
+const orderSuccess=async (req,res)=>{
+    const {session,token}=req.cookies;
+
+    const valid=jwt.verify(token,process.env.jwt_secret);
+    const userId=valid.id
+
+    res.clearCookie("session");
+
+    const Cart=await cartSchema.findOne({userId}).populate({
+        path:"cart.productId",
+        model:"product",
+    })
+
+    if (!cart||Cart.cart.length===0){
+        return res.status(200).send("No products found in your cart")
+    }
+    let totalItems=0;
+    let totalPrice=0;
+
+    Cart.cart.forEach((item)=>{
+        const quantity=item.quantity||0;
+        const price=item.productId.price||0;
+
+        totalItems += quantity;
+        totalPrice += quantity*price;
+    })
+    
+    // create new order
+    
+    const order=new OrderSchema({
+        userId: Cart.userId,
+        totalItems,
+        totalPrice,
+        orderId:`ORD ${session}`,
+    });
+
+    Cart.cart.forEach((item)=>{
+        order.products.push({
+            productId: items.productId._id,
+            quantity:items.quantity
+        })
+    })
+        await order.save();
+
+        Cart.cart=[];
+        await Cart.save();
+
+        res.status(200).send("order placed successfully")
+}
+//order records
+
+const orderRecords=async (req,res)=>{
+    const {token}=req.cookies
+    const {userId}=req.params
+
+    const orders=await OrderSchema.findOne({userId});
+
+    if (!orders){
+        res.status(404).send("No order Records");
+    }
+    res.status(200).json(orders)
+}
+
 module.exports = {
     userRegistration,
     userLogin,
@@ -355,5 +421,7 @@ module.exports = {
     getCart,
     removeWishList,
     viewWishList,
-    decreaseQuantity
+    decreaseQuantity,
+    orderSuccess,
+    orderRecords
 }
