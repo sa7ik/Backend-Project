@@ -26,7 +26,6 @@ const Schema=joi.object({
 // view all users
 
 const allUsers= async(req,res)=>{
-    const {token} = req.cookies;
     const users=await UserSchema.find();
     if (users.length===0){
         res.status(400).json({
@@ -104,7 +103,6 @@ const viewProductById=async (req,res)=>{
 // add product
 
 const addProduct=async(req,res)=>{
-    const {token}=req.cookies
     const data=req.body
     data.image=req.cloudinaryImageUrl
 
@@ -134,7 +132,6 @@ const addProduct=async(req,res)=>{
 // update product
 
 const updateProduct=async (req,res)=>{
-    const {token}=req.cookies
     const {id}=req.params
 
     const data=req.body;
@@ -253,6 +250,8 @@ module.exports={
     viewProduct,
     viewProductById,
     getCart,
+    addProduct,
+    updateProduct,
     deleteProduct,
     orders,
     ordersById,
