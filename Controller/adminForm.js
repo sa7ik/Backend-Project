@@ -135,6 +135,7 @@ const updateProduct=async (req,res)=>{
     const {id}=req.params
 
     const data=req.body;
+    data.image=req.cloudinaryImageUrl
 
     const {name,description,price,image}=data
     const {error}=Schema.validate(data);
@@ -152,7 +153,7 @@ const updateProduct=async (req,res)=>{
         {_id:id},
         {
             name:name,
-            image:req.cloudinaryImageUrl,
+            image:image,
             price:price,
             description:description,
         }
